@@ -3,17 +3,20 @@ from cvxmod.atoms import square
 from math import sqrt
 
 class system(object):
-    def __init__(self, pins):
-        self.pins = pins
+    def __init__(self, f=None):
+        self.f = f
+
+    def notify(self):
+        raise NotImplementedError("need to implement notify")
 
     def sendbounds(self):
         raise NotImplementedError("need to implement bounds")
 
-    def bregsolve(y, nu, R):
+    def bregsolve(self, y, nu, R):
         raise NotImplementedError("need to implement bregsolve")
 
 class controller(object):
-    def __init__(self, pins, sc):
+    def __init__(self, pinstojoin):
         self.pins = pins
         self.sc = sc
 
@@ -55,10 +58,39 @@ class phi(object):
             assert(p.solve(True, kktsolver='ldl') == 'optimal')
             return value(p)
 
-#sys = []
-#K = 
-#for i in range(5):
-#    sys.append(system
+class bound(object):
+    def __init__(self, lower, upper):
+        self.lower = lower
+        self.upper = upper
+
+# Phi systems are characterized by having p scalar variables and a single
+# function f.
+class phisys(system):
+    def __init__(self, f, p):
+        self.f = f
+        # Create wire dictionary.
+        self.wires = {}
+        for i in range(p):
+            self.wires[i] = None
+
+    def attachwire(self, i, w):
+        self.wires[i] = w
+
+    def sendbounds(self):
+        BIGM = 100
+        for w in self.wires:
+            w.send(bound(-BIGM, BIGM))
+
+    def notify(self):
+        pass
+
+    def marshall(self):
+        # Pull the data off the wires and put it together for bregsolve.
+        for w in self.wires.keys():
+            w.
+
+    def bregsolve(self, y, nu, R):
+        p = problem(minimize(
 
 m = 20
 n = 10
@@ -67,23 +99,23 @@ ps = (1, 2, 1, 3, 2)
 fs = []
 
 # Describe the hypergraph. Indices start from 0.
-nets = [[0,1,3], [1,4], [2,3], [3,4]]
+#nets = [[0,1,3], [1,4], [2,3], [3,4]]
 
-# Need to have ordered pairs. Systems might expose labelled pins that need to
-# be connected as labels. Or, they might be numbered. How do we do this? Also
-# need to think about sizes. Important thing is just to match up the controller
-# pins and system pins accurately.
-
-# Generate the controllers: one per net.
-cs = []
-for i in range(len(cs)):
-    for 
-    controller
-
-# Generate the 
+# Generate the functions.
 for i in range(len(ps)):
     fs.append(phi(i, m, n, ps[i]))
 
-# Describe the nets in an intuitive way.
-N = 4
+ss = []
+# Generate the systems, one corresponding to each function. Note: don't
+# necessarily need to generate systems in this way.
+for f in len(fs):
+    ss.append(system(f, ps[i]))
+
+# Create the controllers by joining relevant nets. Second one in the list, for
+# example, means join the pin labelled 1 in system 1 with the pin labelled 0 in
+# system 4.
+cs = [controller([(ss[0], 0), (ss[1], 0), (ss[3], 0)]),
+      controller([(ss[1], 1), (ss[4], 0)]),
+      controller([(ss[2], 0), (ss[3], 1)]),
+      controller([(ss[3], 2), (ss[4], 1)])]
 

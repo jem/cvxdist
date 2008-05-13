@@ -1,0 +1,10 @@
+Need to have ordered pairs when connecting controllers and systems. Systems
+might expose labelled pins that need to be connected as labels. Or, they might
+be numbered. How do we do this? Also need to think about sizes. Important thing
+is just to match up the controller pins and system pins accurately. More
+difficult and more important in a heterogeneous program.
+
+Systems are responsible for marshalling variables internally, and carry up to a
+lot of intelligence about how to solve and manipulate problems. There should be
+no worries about putting even very specific stuff into systems - that's what
+they're for.
